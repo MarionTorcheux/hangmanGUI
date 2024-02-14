@@ -17,10 +17,21 @@ public class Hangman extends JFrame implements ActionListener {
     private final JTextField userInputField;
     private final JTextArea hangmanOutput;
 
+    private static JLabel hangmanImage;
+
+
+
+
     public Hangman() {
+
         setTitle("Hangman Game");
-        setSize(400, 300);
+        setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        hangmanImage = new JLabel();
+        ImageIcon initialImage = new ImageIcon("src/main/resources/images/1.png");
+        hangmanImage.setIcon(initialImage);
+
 
 
         userInputField = new JTextField();
@@ -42,6 +53,7 @@ public class Hangman extends JFrame implements ActionListener {
                                 .addComponent(userInputField)
                                 .addComponent(guessButton)
                         )
+                        .addComponent(hangmanImage)
         );
 
         layout.setVerticalGroup(
@@ -51,24 +63,39 @@ public class Hangman extends JFrame implements ActionListener {
                                 .addComponent(userInputField)
                                 .addComponent(guessButton)
                         )
+                        .addComponent(hangmanImage)
         );
 
         render();
     }
 
+    public void updateHangmanImage(int imageNumber) {
+        // Mettez à jour l'image en fonction du numéro passé en paramètre
+        String imagePath = "src/main/resources/images/" + imageNumber + ".png";
+        ImageIcon newImageIcon = new ImageIcon(imagePath);
+        hangmanImage.setIcon(newImageIcon);
+    }
+
+
     public static void main(String[] args) {
 
             Hangman hangman = new Hangman();
             hangman.setVisible(true);
+            hangman.updateHangmanImage(trials + 1);
 
     }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
         String guess = userInputField.getText().toLowerCase();
-        hang(guess);
-        userInputField.setText("");
-        render();
+        if (!guess.isEmpty() && guess.matches("[a-z]")) {
+            hang(guess);
+            userInputField.setText("");
+            render();
+        } else {
+            JOptionPane.showMessageDialog(this, "Veuillez entrer une lettre valide.", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void render() {
@@ -79,6 +106,7 @@ public class Hangman extends JFrame implements ActionListener {
                 break;
             case 7:
                 hangmanOutput.append("GAME OVER!\nPERDU ! Le mot était " + guessWord);
+                updateHangmanImage(8);
                 startNewGame();
                 break;
             default:
@@ -89,6 +117,8 @@ public class Hangman extends JFrame implements ActionListener {
             hangmanOutput.setText( "GAGNÉ ! Bravo ! Le mot était " + guessWord + "\n");
             startNewGame();
         }
+
+        updateHangmanImage(trials + 1);
     }
 
     private void hang(String guess) {
